@@ -58,7 +58,29 @@
         </template>
 
         <template id='tAtendimentoExpandido'>
-
+            <div id='atendimentoExpandido'>
+                <div class='expandido-header'>
+                    <i class='fas fa-save salvar' id='salvar' title='Salvar'></i>
+                    <i class='fas fa-times fechar' title='Fechar' onclick='fecharAtendimento()'></i>
+                    <div id='cliente'></div>
+                    <div id='chave'></div>
+                </div>
+                <div class='expandido-detalhes'>
+                    <section>
+                        <i class='fas fa-map-marked-alt' title='Localização'></i>
+                        <a id='endereco' href='http://maps.google.com/maps?q='></a>
+                    </section>
+                    <section>
+                        <i class='fas fa-phone' title='Contato'></i>
+                        <div class='spacer' id='contato'></div>
+                    </section>
+                    <section>
+                        <i class='far fa-window-alt' title='Sistema'></i>
+                        <div id='sistema' class='spacer'></div>
+                    </section>
+                    <section class='motivos' id='motivos'></section>
+                </div>
+            </div>
         </template>
 
         <template id='tLogin'>
@@ -100,80 +122,6 @@
                 <button type='button' onclick='conferirDados()'>ENTRAR</button>
             </div>
         </div>
-
-
-
-        <div id='atendimentoExpandido'>
-            <div class='expandido-header'>
-                <i class='fas fa-times' title='Fechar'></i>
-                <div id='cliente'>Mundo Eletrônico</div>
-                <div id='chave'>0000000000000</div>
-            </div>
-            <div class='expandido-detalhes'>
-                <section>
-                    <i class='fas fa-map-marked-alt' title='Localização'></i>
-                    <a href='http://maps.google.com/maps?q=rua+joão+januário+ayroso+1825+jaragua+do+sul'>Rua João Januário Ayroso, 1825 - Sala 1 - Jaraguá do Sul, SC</a>
-                </section>
-                <section>
-                    <i class='fas fa-phone' title='Contato'></i>
-                    <div class='spacer'>
-                        <a href='tel:(47)3370-1881'>(47) 3370-1881</a>
-                        |
-                        <a href='tel:(47)99964-9667'>(47) 99964-9667</a>
-                    </div>
-                </section>
-                <section>
-                    <i class='far fa-window-alt' title='Sistema'></i>
-                    <div class='spacer'>Versão 0.2.6 - Pc do Carlos</div>
-                </section>
-                <section class='motivos'>
-                    <div class='motivo'>
-                        <input type="checkbox" id="motivo1" name="motivo">
-                        <label for="motivo1">Motivo 1</label>
-                    </div>
-                    <div class='motivo'>
-                        <input type="checkbox" id="motivo2" name="motivo">
-                        <label for="motivo2">Motivo 2</label>
-                    </div>
-                    <div class='motivo'>
-                        <input type="checkbox" id="motivo3" name="motivo">
-                        <label for="motivo3">Motivo 3</label>
-                    </div>
-                    <div class='motivo'>
-                        <input type="checkbox" id="motivo4" name="motivo">
-                        <label for="motivo4">Motivo 4</label>
-                    </div>
-                    <div class='motivo'>
-                        <input type="checkbox" id="motivo5" name="motivo">
-                        <label for="motivo5">Motivo 5</label>
-                    </div>
-                    <div class='motivo'>
-                        <input type="checkbox" id="motivo6" name="motivo">
-                        <label for="motivo6">Motivo 6</label>
-                    </div>
-                    <div class='motivo'>
-                        <input type="checkbox" id="motivo7" name="motivo">
-                        <label for="motivo7">Motivo 7</label>
-                    </div>
-                    <div class='motivo'>
-                        <input type="checkbox" id="motivo8" name="motivo">
-                        <label for="motivo8">Motivo 8</label>
-    
-                    </div>
-                    <div class='motivo'>
-                        <input type="checkbox" id="motivo9" name="motivo">
-                        <label for="motivo9">Motivo 9</label>
-                    </div>
-                    <div class='motivo'>
-                        <input type="checkbox" id="motivo10" name="motivo">
-                        <label for="motivo10">Motivo 10</label>
-                    </div>
-                </section>
-            </div>
-        </div>
-
-
-
 
         <div id='messages'></div>
         <div id='error'></div>

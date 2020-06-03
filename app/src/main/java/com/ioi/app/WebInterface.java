@@ -5,7 +5,8 @@ import android.content.SharedPreferences;
 import android.webkit.JavascriptInterface;
 
 public class WebInterface {
-    Context context;
+    private Context context;
+    static boolean atendimentoExpandido = false;
 
     WebInterface(Context c) {
         context = c;
@@ -30,7 +31,7 @@ public class WebInterface {
     }
 
     @JavascriptInterface
-    public void expandirAtendimento() {
-        Principal.atendimentoExpandido = true;
+    public void expandirAtendimento(boolean expandido) {
+        atendimentoExpandido = expandido;
     }
 }

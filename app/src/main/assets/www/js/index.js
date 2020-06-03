@@ -103,7 +103,7 @@ const messages = message => {
 
     setTimeout(() => {
         document.getElementById("messages").style.bottom = "-150px"
-    }, 7000)
+    }, 5000)
 }
 
 const error = message => {
@@ -194,7 +194,6 @@ const listagem = () => {
     var container = new DocumentFragment()
     for(var y = 0; y < Object.keys(atendimentos).length; y++) {
         var atendimento = atendimentos[Object.keys(atendimentos)[y]]
-    
         container.appendChild(criarInterfaceAtendimento(atendimento))
     }
     document.getElementById('listagem').appendChild(container)
@@ -210,7 +209,7 @@ const criarInterfaceAtendimento = atendimento => {
     var interface = document.getElementById('tAtendimento').content.cloneNode(true)
     interface.querySelector('.atendimento').id = atendimento.id
     interface.querySelector('.atendimento').onclick = (atendimento => {
-        return () => {expandirAtendimento(atendimento)}
+        return () => { expandirAtendimento(atendimento) }
     })(atendimento)
 
     interface.querySelector('#cliente').innerHTML = atendimento.dados.nomefantasia
@@ -240,10 +239,173 @@ const criarInterfaceAtendimento = atendimento => {
 
 const expandirAtendimento = atendimento => {
 
-    Android.pegarUsuario()
-    
+    Android.expandirAtendimento(true)
+    var layout = document.getElementById('tAtendimentoExpandido').content.cloneNode(true)
+
+    layout.querySelector('#salvar').onclick = (atendimento => {
+        return () => { salvarAtendimento(atendimento) }
+    })(atendimento)
+
+    layout.querySelector('#cliente').innerHTML = atendimento.dados.nomefantasia
+    layout.querySelector('#chave').innerHTML = atendimento.cliente
+    layout.querySelector('#chave').innerHTML = atendimento.cliente
+    var endereco = atendimento.dados.endereco
+    layout.querySelector('#endereco').href = 'http://maps.google.com/maps?q=' + endereco.rua + '+' + endereco.numero + '+' + endereco.cidade
+    if(endereco.complemento == '') {
+        layout.querySelector('#endereco').innerHTML = endereco.rua + ', ' + endereco.numero + ', ' + endereco.cidade + ', ' + endereco.estado
+    } else {
+        layout.querySelector('#endereco').innerHTML = endereco.rua + ', ' + endereco.numero + ' - ' + endereco.complemento + ' - ' + endereco.cidade + ', ' + endereco.estado
+    }
+    var contato = atendimento.dados.contato
+    if(contato.celular == '' && contato.telefone != '') {
+        layout.querySelector('#contato').innerHTML = "<a href='tel:" + contato.telefone + "'>" + contato.telefone + "</a>"
+    } else if (contato.celular != '' && contato.telefone == '') {
+        layout.querySelector('#contato').innerHTML = "<a href='tel:" + contato.celular + "'>" + contato.celular + "</a>"
+    } else {
+        layout.querySelector('#contato').innerHTML = "<a href='tel:" + contato.telefone + "'>" + contato.telefone + 
+                                                        "</a> &nbsp&nbsp|&nbsp&nbsp <a href='tel:" +  contato.celular + "'>" + contato.celular + "</a>"
+    }
+    layout.querySelector('#sistema').innerHTML = 'Versão ' + atendimento.dados.sistema.versao + ' - ' + atob(atendimento.dados.sistema.local)
+
+    var motivos = new DocumentFragment()
+    atendimento.motivo.forEach((motivo, index) => {
+        var div = document.createElement('div')
+        div.className = 'motivo'
+        div.innerHTML = "<input type='checkbox' id='" + index + "' name='" + index + "'><label for='" + index + "'>" + motivo +"</label>"
+        motivos.appendChild(div)
+    })
+    layout.querySelector('#motivos').appendChild(motivos)
+
+    document.body.appendChild(layout)
+    setTimeout(() => {
+        document.getElementById('atendimentoExpandido').style.opacity = '1'
+    }, 10)
 }
 
 const fecharAtendimento = () => {
-    console.log('atendimento fechado')
+    
+    Android.expandirAtendimento(false)
+    var atendimento = document.getElementById('atendimentoExpandido')
+    atendimento.style.opacity = 0
+
+    setTimeout(() => {
+        atendimento.remove()
+    }, 250)
+}
+
+const salvarAtendimento = atendimento => {
+
+    var layout = document.getElementById('atendimentoExpandido')
+    var todos = true
+    layout.querySelectorAll('input').forEach(motivo => {
+        if(!motivo.checked) {
+            todos = false
+        }
+    })
+
+    if(todos ) {
+        var data = new Date()
+        var ano = data.getFullYear()
+        var mes = data.getMonth() + 1
+        if (mes < 10) { mes = "0" + mes }
+        var dia = data.getDate()
+        if (dia < 10) { dia = "0" + dia }
+        atendimento.feito = true
+        atendimento.datas = {
+            inicio: atendimento.datas.inicio,
+            fim: ano + '-' + mes + '-' + dia
+        }
+
+        if(confirm('Todas as impressoras foram abastecidas?')) {
+            encherTintas(atendimento.dados)
+        }
+        delete atendimento.dados
+        gravarAtendimento({[atendimento.id]: atendimento})
+    } else {
+        var algumFeito = false
+        layout.querySelectorAll('.motivo').forEach(motivo => {
+            
+            var checkbox = motivo.querySelector('input')
+            var label = motivo.querySelector('label')
+            if(checkbox.checked) {
+                algumFeito = true
+                const index = atendimento.motivo.indexOf(label.innerHTML)
+                if (index > -1) {
+                    atendimento.motivo.splice(index, 1)
+                }
+            }
+        })
+
+        if(algumFeito) {
+            atendimento.responsavel = ''
+            delete atendimento.dados
+            gravarAtendimento({[atendimento.id]: atendimento})
+        } else {
+            error('Marque um/todos os itens como feitos antes de salvar!')
+        }
+    }
+}
+
+const gravarAtendimento = atendimento => {
+    
+    fecharAtendimento()
+    messages('Gravando dados, aguarde!')
+    var usuario = JSON.parse(Android.pegarUsuario())
+    axios.request('https://us-central1-ioi-printers.cloudfunctions.net/gravarAtendimentos', {
+        params: {
+            usuario: usuario.usuario,
+            senha: usuario.senha,
+            atendimentos: JSON.stringify(atendimento)
+        }
+    }).then(res => {
+        if(res.data.autenticado) {
+            if(res.data.erro) {
+                error(res.data.msg)
+            } else {
+                messages('Dados gravados com sucesso!')
+                atualizar()
+            }
+        } else {
+            error('Tivemos algum problema de autenticação. Reabra o aplicativo e tente novamente!')
+        }
+    }).catch(err => {
+        console.error(err)
+        error('Erro ao gravar os dados. Alterações não foram salvas')
+    })
+}
+
+const encherTintas = cliente => {
+
+    var impressoras = cliente.impressoras
+    for(var y = 0; y < Object.keys(impressoras).length; y++) {
+        var impressora = impressoras[Object.keys(impressoras)[y]]
+        
+        if(impressora.ativa && impressora.tinta.capacidade != 'ilimitado') {
+            impressora.tinta.cheio = impressora.tinta.cheio + impressora.tinta.impresso
+            impressora.tinta.impresso = 0
+            impressora.tinta.nivel = 100
+        }
+    }
+
+    var usuario = JSON.parse(Android.pegarUsuario())
+    axios.request('https://us-central1-ioi-printers.cloudfunctions.net/gravarCliente', {
+        params: {
+            usuario: usuario.usuario,
+            senha: usuario.senha,
+            cliente: JSON.stringify(cliente)
+        }
+    }).then(res => {
+        if(res.data.autenticado) {
+            if(res.data.erro) {
+                error(res.data.msg)
+            } else {
+                messages('Todas as impressoras foram marcadas como cheias!')
+            }
+        } else {
+            error('Tivemos algum problema de autenticação. Reabra o aplicativo e tente novamente!')
+        }
+    }).catch(err => {
+        console.error(err)
+        error('Erro ao gravar os dados. Reabra o aplicativo e tente novamente!')
+    })
 }

@@ -4,12 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 public class Principal extends AppCompatActivity {
 
-    public static boolean atendimentoExpandido = false;
     private WebView webview;
 
     @Override
@@ -26,8 +24,7 @@ public class Principal extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(atendimentoExpandido) {
-            atendimentoExpandido = false;
+        if(WebInterface.atendimentoExpandido) {
             webview.loadUrl("javascript:fecharAtendimento()");
         } else {
             super.onBackPressed();
