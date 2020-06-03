@@ -1,3 +1,4 @@
+const versao = '0.0.1'
 var atendimentos = {}
 var suprimentos = {}
 var clientes = {}
@@ -130,10 +131,14 @@ const receberDados = () => {
         params: {
             plataforma: 'mobile',
             usuario: usuario.usuario,
-            senha: usuario.senha
+            senha: usuario.senha,
+            sistema: 'android',
+            versao: versao
         }
     }).then(res => {
-        if(res.data.auth.autenticado) {
+        if(res.data.atualizar) {
+            update(res.data)
+        } else if(res.data.auth.autenticado) {
             atendimentos = res.data.atendimentos
             suprimentos = res.data.suprimentos
             clientes = res.data.clientes
@@ -214,7 +219,7 @@ const criarInterfaceAtendimento = atendimento => {
 
     interface.querySelector('#cliente').innerHTML = atendimento.dados.nomefantasia
     if(atendimento.ordem != 0) {
-        interface.querySelector('#ordem').innerHTML = atendimento.ordem + "º"
+        interface.querySelector('#ordem').innerHTML = atendimento.ordem + "&deg"
     }
 
     var horario = atendimento.dados.horarios[dia]
@@ -377,35 +382,53 @@ const gravarAtendimento = atendimento => {
 const encherTintas = cliente => {
 
     var impressoras = cliente.impressoras
-    for(var y = 0; y < Object.keys(impressoras).length; y++) {
-        var impressora = impressoras[Object.keys(impressoras)[y]]
-        
-        if(impressora.ativa && impressora.tinta.capacidade != 'ilimitado') {
-            impressora.tinta.cheio = impressora.tinta.cheio + impressora.tinta.impresso
-            impressora.tinta.impresso = 0
-            impressora.tinta.nivel = 100
-        }
-    }
-
-    var usuario = JSON.parse(Android.pegarUsuario())
-    axios.request('https://us-central1-ioi-printers.cloudfunctions.net/gravarCliente', {
-        params: {
-            usuario: usuario.usuario,
-            senha: usuario.senha,
-            cliente: JSON.stringify(cliente)
-        }
-    }).then(res => {
-        if(res.data.autenticado) {
-            if(res.data.erro) {
-                error(res.data.msg)
-            } else {
-                messages('Todas as impressoras foram marcadas como cheias!')
+    if(impressoras != undefined && impressoras != null) {
+        for(var y = 0; y < Object.keys(impressoras).length; y++) {
+            var impressora = impressoras[Object.keys(impressoras)[y]]
+            
+            if(impressora.ativa && impressora.tinta.capacidade != 'ilimitado') {
+                impressora.tinta.cheio = impressora.tinta.cheio + impressora.tinta.impresso
+                impressora.tinta.impresso = 0
+                impressora.tinta.nivel = 100
             }
-        } else {
-            error('Tivemos algum problema de autenticação. Reabra o aplicativo e tente novamente!')
         }
-    }).catch(err => {
-        console.error(err)
-        error('Erro ao gravar os dados. Reabra o aplicativo e tente novamente!')
-    })
+    
+        var usuario = JSON.parse(Android.pegarUsuario())
+        axios.request('https://us-central1-ioi-printers.cloudfunctions.net/gravarCliente', {
+            params: {
+                usuario: usuario.usuario,
+                senha: usuario.senha,
+                cliente: JSON.stringify(cliente)
+            }
+        }).then(res => {
+            if(res.data.autenticado) {
+                if(res.data.erro) {
+                    error(res.data.msg)
+                } else {
+                    messages('Todas as impressoras foram marcadas como cheias!')
+                }
+            } else {
+                error('Tivemos algum problema de autenticação. Reabra o aplicativo e tente novamente!')
+            }
+        }).catch(err => {
+            console.error(err)
+            error('Erro ao gravar os dados. Reabra o aplicativo e tente novamente!')
+        })
+    }
 }
+
+const update = dados => {
+    esconderLoad()
+    mostrarUpdate(document.body)
+    Android.atualizar(dados.url)
+}
+
+const mostrarUpdate = el => {
+    var update = document.getElementById('tUpdate').content.cloneNode(true)
+    el.appendChild(update)
+    el.querySelector('#update').style.display = 'flex'
+
+    setTimeout(() => {
+        el.querySelector('#update').style.opacity = '1'
+    }, 50)
+} 

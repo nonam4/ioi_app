@@ -17,8 +17,18 @@
     </head>
     <body onload="autenticacao()">
         <template id='tLoad'>
-            <div id='load'>
+            <div id='load' class='load'>
                 <img src='img/icon.png'>
+                <div class='loading'>
+                    <div class='loader center'><span></span></div>
+                </div>
+            </div>
+        </template>
+
+        <template id='tUpdate'>
+            <div id='update' class='load'>
+                <img src='img/icon.png'>
+                <div class='updating'>Atualizando, aguarde!</div>
                 <div class='loading'>
                     <div class='loader center'><span></span></div>
                 </div>

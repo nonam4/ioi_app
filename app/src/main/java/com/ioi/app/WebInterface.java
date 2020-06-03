@@ -34,4 +34,10 @@ public class WebInterface {
     public void expandirAtendimento(boolean expandido) {
         atendimentoExpandido = expandido;
     }
+
+    @JavascriptInterface
+    public void atualizar(String url) {
+        Principal principal = (Principal) context;
+        principal.verificarPermissao(url);
+    }
 }

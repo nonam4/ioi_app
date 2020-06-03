@@ -29,12 +29,12 @@ html, body {
     overflow: hidden;
 }
 
-#load ::after, #load ::before {
+.load ::after, .load ::before {
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
 }
   
-#load {
+.load {
     left: 0;
     top: 0;
     width: inherit;
@@ -53,10 +53,16 @@ html, body {
     -webkit-transition: 0.2s ease all;
 }
   
-#load img {
+.load img {
     width: 200px;
     margin: auto;
     margin-bottom: 20px;
+}
+
+.updating {
+    font-size: 14px;
+    color: var(--textos);
+    margin-bottom: 8px;
 }
 
 #login {
@@ -303,7 +309,7 @@ html, body {
     font-size: 14px;
     width: calc(100% - 44px);
     box-shadow: 0 1px 2px rgba(0,0,0,.5);
-    padding: 22px;
+    padding: 18px 22px;
     z-index: 1000;
     position: absolute;
     bottom: -150px;
@@ -319,7 +325,7 @@ html, body {
     font-size: 14px;
     width: calc(100% - 44px);
     box-shadow: 0 1px 2px rgba(0,0,0,.5);
-    padding: 22px;
+    padding: 18px 22px;
     z-index: 1000;
     position: absolute;
     bottom: -150px;
@@ -358,10 +364,10 @@ html, body {
     position: absolute;
     top: 8px;
     padding: 5px;
-    min-width: 20px;
-    height: 20px;
+    min-width: 25px;
+    height: 25px;
     text-align: center;
-    line-height: 20px;
+    line-height: 25px;
     border-radius: 50%;
     transition: 0.2s ease all;
     -moz-transition: 0.2s ease all;
@@ -369,12 +375,12 @@ html, body {
 }
 
 .salvar {
-    right: 36px;
+    right: 45px;
     
 }
 
 .fechar {
-    right: 8px;
+    right: 10px;
 }
 
 .expandido-header i:hover {
