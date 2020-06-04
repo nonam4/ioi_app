@@ -40,4 +40,17 @@ public class WebInterface {
         Principal principal = (Principal) context;
         principal.verificarPermissao(url);
     }
+
+    @JavascriptInterface
+    public void salvarAtendimentos(String atendimentos) {
+        SharedPreferences localstorage = context.getSharedPreferences("ioi", Context.MODE_PRIVATE);
+        localstorage.edit().putString("atendimentos", atendimentos).apply();
+    }
+
+    @JavascriptInterface
+    public String pegarAtendimentos() {
+        SharedPreferences localstorage = context.getSharedPreferences("ioi", Context.MODE_PRIVATE);
+        System.out.println(localstorage.getString("atendimentos", null));
+        return(localstorage.getString("atendimentos", null));
+    }
 }

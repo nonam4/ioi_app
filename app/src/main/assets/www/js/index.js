@@ -1,4 +1,4 @@
-const versao = '0.0.1'
+const versao = '0.1.1'
 var atendimentos = {}
 var suprimentos = {}
 var clientes = {}
@@ -18,8 +18,9 @@ const gravarToken = token => {
 const autenticacao = () => {
     mostrarLoad(document.body)
     //quando a página acabar de carregar o sistema checa se o usuario esta autenticado ou não
-    var usuario = JSON.parse(Android.pegarUsuario())
-    if(usuario != null){
+    var dados = Android.pegarUsuario()
+    if(dados != null){
+        var usuario = JSON.parse(dados)
         setTimeout(() => {
             autenticar(usuario.usuario, usuario.senha)
         }, 250)
@@ -59,9 +60,6 @@ const autenticar = (usuario, senha) => {
         Android.salvarUsuario(JSON.stringify(usuario))
         gravarToken(Android.pegarToken())
         setTimeout(() => {
-            document.getElementById('login').remove()
-            var layout = document.getElementById('tAtendimentos').content.cloneNode(true)
-            document.body.appendChild(layout)
             receberDados()
         }, 250)
     } else {
@@ -71,10 +69,18 @@ const autenticar = (usuario, senha) => {
         }, 250)
     }
     }).catch(err => {
-        console.error(err)
         esconderLoad()
         setTimeout(function(){
-            error("Tente novamente mais tarde")
+            var cache = Android.pegarAtendimentos()
+            if(cache != null) {
+                var local = JSON.parse(cache)
+                atendimentos = local.atendimentos
+                suprimentos = local.suprimentos
+                clientes = local.clientes
+                listagem()
+            } else {
+                error("Tente novamente mais tarde")
+            }
         }, 250)
     })
 }
@@ -142,13 +148,13 @@ const receberDados = () => {
             atendimentos = res.data.atendimentos
             suprimentos = res.data.suprimentos
             clientes = res.data.clientes
+            Android.salvarAtendimentos(JSON.stringify(res.data))
             listagem()
         } else {
             logout()
             esconderLoad()
         }
     }).catch(err => {
-        console.error(err)
         esconderLoad()
         setTimeout(() => {
             error('Tivemos algum problema ao processar os dados. Tente novamente mais tarde!')
@@ -195,6 +201,9 @@ const esconderAcoes = el => {
 }
 
 const listagem = () => {
+    document.getElementById('login').remove()
+    var layout = document.getElementById('tAtendimentos').content.cloneNode(true)
+    document.body.appendChild(layout)
 
     var container = new DocumentFragment()
     for(var y = 0; y < Object.keys(atendimentos).length; y++) {
@@ -321,7 +330,7 @@ const salvarAtendimento = atendimento => {
             fim: ano + '-' + mes + '-' + dia
         }
 
-        if(confirm('Todas as impressoras foram abastecidas?')) {
+        if(confirm('Marcar todas as impressoras como abastecidas?')) {
             encherTintas(atendimento.dados)
         }
         delete atendimento.dados
@@ -346,7 +355,11 @@ const salvarAtendimento = atendimento => {
             delete atendimento.dados
             gravarAtendimento({[atendimento.id]: atendimento})
         } else {
-            error('Marque um/todos os itens como feitos antes de salvar!')
+            if(confirm('Deseja salvar o atendimento sem nenhum item feito?')) {
+                atendimento.responsavel = ''
+                delete atendimento.dados
+                gravarAtendimento({[atendimento.id]: atendimento})
+            }
         }
     }
 }
