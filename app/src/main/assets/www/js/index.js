@@ -1,4 +1,5 @@
-const versao = '0.1.1'
+const versao = '0.1.2'
+var usuario
 var atendimentos = {}
 var suprimentos = {}
 var clientes = {}
@@ -20,7 +21,7 @@ const autenticacao = () => {
     //quando a página acabar de carregar o sistema checa se o usuario esta autenticado ou não
     var dados = Android.pegarUsuario()
     if(dados != null){
-        var usuario = JSON.parse(dados)
+        usuario = JSON.parse(dados)
         setTimeout(() => {
             autenticar(usuario.usuario, usuario.senha)
         }, 250)
@@ -44,12 +45,12 @@ const conferirDados = () => {
     }
 }
 
-const autenticar = (usuario, senha) => {
+const autenticar = (login, senha) => {
 
     mostrarLoad(document.body)
-    axios.get('https://us-central1-ioi-printers.cloudfunctions.net/autenticar?usuario=' + usuario + '&senha=' + senha).then(res => {
+    axios.get('https://us-central1-ioi-printers.cloudfunctions.net/autenticar?usuario=' + login + '&senha=' + senha).then(res => {
     if(res.data.autenticado) {
-        var usuario = {
+        usuario = {
             nome: res.data.nome,
             usuario: res.data.usuario,
             senha: res.data.senha,
@@ -60,7 +61,8 @@ const autenticar = (usuario, senha) => {
         Android.salvarUsuario(JSON.stringify(usuario))
         gravarToken(Android.pegarToken())
         setTimeout(() => {
-            receberDados()
+            document.getElementById('login').remove()
+            receberDados(false)
         }, 250)
     } else {
         esconderLoad()
@@ -69,17 +71,19 @@ const autenticar = (usuario, senha) => {
         }, 250)
     }
     }).catch(err => {
-        esconderLoad()
-        setTimeout(function(){
+        setTimeout(() => {
             var cache = Android.pegarAtendimentos()
+            console.log(cache)
             if(cache != null) {
+                document.getElementById('login').remove()
                 var local = JSON.parse(cache)
                 atendimentos = local.atendimentos
                 suprimentos = local.suprimentos
                 clientes = local.clientes
-                listagem()
+                listagem(true)
             } else {
-                error("Tente novamente mais tarde")
+                esconderLoad()
+                error("Verifique a conexão com a internet!")
             }
         }, 250)
     })
@@ -110,7 +114,7 @@ const messages = message => {
 
     setTimeout(() => {
         document.getElementById("messages").style.bottom = "-150px"
-    }, 5000)
+    }, 4000)
 }
 
 const error = message => {
@@ -131,8 +135,8 @@ const enterPressed = e => {
     }
 }
 
-const receberDados = () => {
-    var usuario = JSON.parse(Android.pegarUsuario())
+const receberDados = (atualizando) => {
+    //usuario = await JSON.parse(Android.pegarUsuario())
     axios.request('https://us-central1-ioi-printers.cloudfunctions.net/dados', {
         params: {
             plataforma: 'mobile',
@@ -149,15 +153,34 @@ const receberDados = () => {
             suprimentos = res.data.suprimentos
             clientes = res.data.clientes
             Android.salvarAtendimentos(JSON.stringify(res.data))
-            listagem()
+            if(atualizando) {
+                listagem(false)
+            } else {
+                listagem(true)
+            }
         } else {
             logout()
             esconderLoad()
         }
     }).catch(err => {
-        esconderLoad()
+        console.log(err)
         setTimeout(() => {
-            error('Tivemos algum problema ao processar os dados. Tente novamente mais tarde!')
+            var cache = Android.pegarAtendimentos()
+            console.log(cache)
+            if(cache != null) {
+                var local = JSON.parse(cache)
+                atendimentos = local.atendimentos
+                suprimentos = local.suprimentos
+                clientes = local.clientes
+                if(atualizando) {
+                    listagem(false)
+                } else {
+                    listagem(true)
+                }
+            } else {
+                esconderLoad()
+                error('Tivemos algum problema ao processar os dados. Tente novamente mais tarde!')
+            }
         }, 250)
     })
 }
@@ -167,7 +190,7 @@ const atualizar = () => {
     document.querySelectorAll(".atendimento").forEach(el => {
         el.remove()
     })
-    receberDados()
+    receberDados(true)
 }
 
 const logout = () => {
@@ -200,10 +223,11 @@ const esconderAcoes = el => {
     }, 200)
 }
 
-const listagem = () => {
-    document.getElementById('login').remove()
-    var layout = document.getElementById('tAtendimentos').content.cloneNode(true)
-    document.body.appendChild(layout)
+const listagem = (criarMenu) => {
+    if(criarMenu) {
+        var layout = document.getElementById('tAtendimentos').content.cloneNode(true)
+        document.body.appendChild(layout)
+    }
 
     var container = new DocumentFragment()
     for(var y = 0; y < Object.keys(atendimentos).length; y++) {
@@ -445,3 +469,50 @@ const mostrarUpdate = el => {
         el.querySelector('#update').style.opacity = '1'
     }, 50)
 } 
+
+const mostrarAdd = () => {
+    Android.expandirAcoes(true)
+    var fab = document.getElementById('fab')
+    var add = fab.querySelector('i')
+    var buttons = document.getElementById('fab-buttons')
+
+    add.style.opacity = '0'
+    fab.style.width = '300px'
+    fab.style.height = '100px'
+    fab.style.borderRadius = '5px'
+
+    setTimeout(() => {
+        add.style.display = 'none'
+        buttons.style.display = 'flex'
+    }, 200)
+}
+
+const esconderAdd = () => {
+    Android.expandirAcoes(false)
+    var fab = document.getElementById('fab')
+    var add = fab.querySelector('i')
+    var buttons = document.getElementById('fab-buttons')
+
+    setTimeout(() => {
+        buttons.style.display = 'none'
+        add.style.display = 'inline-block'
+    
+        setTimeout(() => {
+            add.style.opacity = '1'        
+            fab.style.width = '50px'
+            fab.style.height = '50px'
+
+            setTimeout(() => {
+                fab.style.borderRadius = '50%'
+            }, 100)
+        }, 200)
+    }, 10)  
+}
+
+const novoAtendimento = () => {
+    console.log('novo atendimento')
+}
+
+const novoCliente = () => {
+    console.log('novo cliente')
+}

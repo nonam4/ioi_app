@@ -7,6 +7,7 @@ import android.webkit.JavascriptInterface;
 public class WebInterface {
     private Context context;
     static boolean atendimentoExpandido = false;
+    static boolean acoesExpandidas = false;
 
     WebInterface(Context c) {
         context = c;
@@ -28,6 +29,11 @@ public class WebInterface {
     public String pegarToken() {
         SharedPreferences localstorage = context.getSharedPreferences("ioi", Context.MODE_PRIVATE);
         return(localstorage.getString("token", null));
+    }
+
+    @JavascriptInterface
+    public void expandirAcoes(boolean expandido) {
+        acoesExpandidas = expandido;
     }
 
     @JavascriptInterface

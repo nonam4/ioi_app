@@ -40,6 +40,8 @@ public class Principal extends AppCompatActivity {
     public void onBackPressed() {
         if(WebInterface.atendimentoExpandido) {
             webview.loadUrl("javascript:fecharAtendimento()");
+        } else if(WebInterface.acoesExpandidas) {
+            webview.loadUrl("javascript:esconderAdd()");
         } else {
             super.onBackPressed();
         }
