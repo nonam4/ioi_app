@@ -42,6 +42,8 @@ public class Principal extends AppCompatActivity {
             webview.loadUrl("javascript:fecharAtendimento()");
         } else if(WebInterface.acoesExpandidas) {
             webview.loadUrl("javascript:esconderAdd()");
+        } else if(WebInterface.novoAtendimento) {
+            webview.loadUrl("javascript:fecharNovoAtendimento()");
         } else {
             super.onBackPressed();
         }

@@ -8,6 +8,7 @@ public class WebInterface {
     private Context context;
     static boolean atendimentoExpandido = false;
     static boolean acoesExpandidas = false;
+    static boolean novoAtendimento = false;
 
     WebInterface(Context c) {
         context = c;
@@ -39,6 +40,11 @@ public class WebInterface {
     @JavascriptInterface
     public void expandirAtendimento(boolean expandido) {
         atendimentoExpandido = expandido;
+    }
+
+    @JavascriptInterface
+    public void novoAtendimento(boolean expandido) {
+        novoAtendimento = expandido;
     }
 
     @JavascriptInterface

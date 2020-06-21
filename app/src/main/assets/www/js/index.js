@@ -1,8 +1,8 @@
 const versao = '0.1.2'
 var usuario
-var atendimentos = {}
-var suprimentos = {}
-var clientes = {}
+var atendimentos
+var suprimentos
+var clientes
 
 const gravarToken = token => {
     var usuario = JSON.parse(Android.pegarUsuario())
@@ -135,8 +135,7 @@ const enterPressed = e => {
     }
 }
 
-const receberDados = (atualizando) => {
-    //usuario = await JSON.parse(Android.pegarUsuario())
+const receberDados = atualizando => {
     axios.request('https://us-central1-ioi-printers.cloudfunctions.net/dados', {
         params: {
             plataforma: 'mobile',
@@ -223,7 +222,7 @@ const esconderAcoes = el => {
     }, 200)
 }
 
-const listagem = (criarMenu) => {
+const listagem = criarMenu => {
     if(criarMenu) {
         var layout = document.getElementById('tAtendimentos').content.cloneNode(true)
         document.body.appendChild(layout)
@@ -510,9 +509,405 @@ const esconderAdd = () => {
 }
 
 const novoAtendimento = () => {
-    console.log('novo atendimento')
+    Android.novoAtendimento(true)
+    var layout = document.getElementById('tNovoAtendimento').content.cloneNode(true)
+    layout.querySelector('#salvar').onclick = () => {salvarNovoAtendimento()}
+
+    var nomes = layout.querySelector('#cliente')
+    autoCompleteClientes(nomes)
+
+    var option = document.createElement('option')
+    option.value = usuario.nome
+    option.innerHTML = usuario.nome
+    layout.querySelector('#responsavel').appendChild(option)
+
+    var adicionarMotivo = document.getElementById('tAtendimentoAdicionar').content.cloneNode(true)
+    var motivo = document.getElementById('tAtendimentoMotivo').content.cloneNode(true)
+    autoCompleteMotivos(motivo.querySelector('.mtmotivo-texto'))
+    layout.querySelector('.mtmotivo-list').appendChild(motivo)
+    layout.querySelector('.mtmotivo-list').appendChild(adicionarMotivo)
+
+    document.body.appendChild(layout)
+    setTimeout(() => {
+        document.getElementById('novoAtendimento').style.opacity = '1'
+    }, 10)
+}
+
+const fecharNovoAtendimento = () => {
+    Android.novoAtendimento(false)
+    var atendimento = document.getElementById('novoAtendimento')
+    atendimento.style.opacity = 0
+
+    setTimeout(() => {
+        atendimento.remove()
+    }, 250)
+}
+
+const autoCompleteClientes = input => {
+    /* precisa de dois parâmetros: o input de textos e o array de clientes */
+      var currentFocus
+      /* adiciona um listener quando for digitado alguma coisa */
+      input.addEventListener('input', function(e) {
+    
+      var a, b, i, val = this.value
+      closeAllLists()
+      
+        if (!val) { return false }
+      currentFocus = -1
+  
+        a = document.createElement('DIV')
+        a.setAttribute('id', this.id + 'autocomplete-list')
+        a.setAttribute('class', 'autocomplete')
+      this.parentNode.appendChild(a)
+      
+      for(var x = 0; x < Object.keys(clientes).length; x++) {
+        var cliente = clientes[Object.keys(clientes)[x]]
+  
+        /* checa as letras compativeis no nome fantasia */
+        if (cliente.nomefantasia.toLowerCase().normalize('NFD').replace(/[^a-zA-Zs]/g, '').indexOf( val.toLowerCase() ) > -1 
+            || cliente.razaosocial.toLowerCase().normalize('NFD').replace(/[^a-zA-Zs]/g, '').indexOf( val.toLowerCase() ) > -1) {
+          
+          /* cria uma div para cada item que tenha correspondencia */
+          b = document.createElement('DIV')
+          if (cliente.nomefantasia.toLowerCase().normalize('NFD').replace(/[^a-zA-Zs]/g, '').indexOf( val.toLowerCase() ) > -1) {
+            b.innerHTML = cliente.nomefantasia
+          } else if (cliente.razaosocial.toLowerCase().normalize('NFD').replace(/[^a-zA-Zs]/g, '').indexOf( val.toLowerCase() ) > -1) {
+            b.innerHTML = cliente.razaosocial
+          }
+  
+          /* cria um input invisivel que vai segurar o valor do item */
+          b.innerHTML += "<input type='hidden' value='" + cliente.id + "'>"
+          /* executa a função quando for clicado na div do item */
+          b.addEventListener('click', function(e) {
+            //quando clicar em um item do autocomplete, define o valor
+            input.value = clientes[this.getElementsByTagName('input')[0].value].nomefantasia
+            mostrarDadosCliente(clientes[this.getElementsByTagName('input')[0].value], input)
+            closeAllLists()
+          })
+          a.appendChild(b)
+        }
+        }
+    })
+    
+    const closeAllLists = elmnt => {
+      /* fecha todas as listas do documento, exceto a passada como argumento */
+      var x = document.querySelectorAll('.autocomplete')
+      x.forEach(el => {
+        if (elmnt != el && elmnt != input) {
+          el.parentNode.removeChild(el)
+        }
+      })
+    }
+      
+      /* executa a função quando alguem clicar fora da lista */
+      document.addEventListener('click', e => {
+        closeAllLists(e.target)
+      })
+}
+  
+const autoCompleteMotivos = input => {
+    /* precisa de dois parâmetros: o input de textos e o array de clientes */
+      var currentFocus
+      /* adiciona um listener quando for digitado alguma coisa */
+      input.addEventListener('input', function(e) {
+    
+      var a, b, i, val = this.value
+      closeAllLists()
+      
+        if (!val) { return false }
+      currentFocus = -1
+  
+        a = document.createElement('DIV')
+        a.setAttribute('id', this.id + 'autocomplete-list')
+        a.setAttribute('class', 'autocomplete')
+      this.parentNode.appendChild(a)
+      
+      for(var x = 0; x < Object.keys(suprimentos).length; x++) {
+        var suprimento = suprimentos[Object.keys(suprimentos)[x]]
+  
+        /* checa as letras compativeis no nome fantasia */
+        if (suprimento.modelo.toLowerCase().indexOf( val.toLowerCase() ) > -1) {
+          /* cria uma div para cada item que tenha correspondencia */
+          b = document.createElement('DIV')
+          b.innerHTML = suprimento.modelo + ' - Em estoque: ' + suprimento.quantidade + ' unidades'
+          /* cria um input invisivel que vai segurar o valor do item */
+          b.innerHTML += "<input type='hidden' value='" + suprimento.id + "'>"
+          /* executa a função quando for clicado na div do item */
+          b.addEventListener('click', function(e) {
+            //quando clicar em um item do autocomplete, define o valor
+            input.value = suprimentos[this.getElementsByTagName('input')[0].value].modelo
+            mostrarQuantidades(input, suprimentos[this.getElementsByTagName('input')[0].value], true)
+            closeAllLists()
+          })
+          a.appendChild(b)
+        }
+        }
+    })
+    
+    const closeAllLists = elmnt => {
+      /* fecha todas as listas do documento, exceto a passada como argumento */
+        
+      var x = document.querySelectorAll('.autocomplete')
+      x.forEach(el => {
+        if (elmnt != el && elmnt != input) {
+          el.parentNode.removeChild(el)
+        }
+      })
+    }
+  
+      /* executa a função quando alguem clicar fora da lista */
+      document.addEventListener('click', e => {
+        closeAllLists(e.target)
+      })
+}
+
+const adicionarMotivo = el => {
+    var motivo = document.getElementById('tAtendimentoMotivo').content.cloneNode(true)
+    var container = motivo.querySelector('.mtmotivo')
+    autoCompleteMotivos(motivo.querySelector('.mtmotivo-texto'))
+    container.style.opacity = '0'
+    $(motivo).insertBefore(el.parentNode)
+    setTimeout(() => {
+        container.style.opacity = '1'
+    }, 50)
+}
+
+const mostrarDadosCliente = (cliente, input) => {
+
+    var container = input.parentNode.parentNode.parentNode.parentNode
+    var dados = container.querySelector('#dados')
+    var editClient = container.querySelector('#editCliente')
+  
+    var endereco = cliente.endereco
+    dados.querySelector('#endereco').href = 'http://maps.google.com/maps?q=' + endereco.rua + '+' + endereco.numero + '+' + endereco.cidade
+    if(endereco.complemento == '') {
+        dados.querySelector('#endereco').innerHTML = endereco.rua + ', ' + endereco.numero + ', ' + endereco.cidade + ', ' + endereco.estado
+    } else {
+        dados.querySelector('#endereco').innerHTML = endereco.rua + ', ' + endereco.numero + ' - ' + endereco.complemento + ' - ' + endereco.cidade + ', ' + endereco.estado
+    }
+
+    var contato = cliente.contato
+    if(contato.celular == '' && contato.telefone != '') {
+        dados.querySelector('#telefone').innerHTML = "<a href='tel:" + contato.telefone + "'>" + contato.telefone + "</a>"
+    } else if (contato.celular != '' && contato.telefone == '') {
+        dados.querySelector('#telefone').innerHTML = "<a href='tel:" + contato.celular + "'>" + contato.celular + "</a>"
+    } else {
+        dados.querySelector('#telefone').innerHTML = "<a href='tel:" + contato.telefone + "'>" + contato.telefone + 
+                                                        "</a> &nbsp&nbsp|&nbsp&nbsp <a href='tel:" +  contato.celular + "'>" + contato.celular + "</a>"
+    }
+  
+    editClient.style.minWidth = '20px'
+    editClient.style.maxWidth = '20px'
+    editClient.style.maxHeight = '20px'
+    editClient.style.marginRight = '8px'
+    editClient.style.padding = '5px'
+    editClient.style.opacity = '1'
+    editClient.onclick = () => { 
+        fecharNovoAtendimento()
+        setTimeout(() => {
+            //expandirCliente(cliente)
+        }, 50) 
+    }
+  
+    dados.querySelector('#chave').innerHTML = 'Chave: ' + cliente.id + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Versão: ' + cliente.sistema.versao + '<br>Local inst.: ' + atob(cliente.sistema.local) 
+    dados.style.height = 'fit-content'
+    dados.style.opacity = '1'
+}
+
+const suprimentoPorModelo = modelo => {
+    for(var x = 0; x < Object.keys(suprimentos).length; x++) {
+        var suprimento = suprimentos[Object.keys(suprimentos)[x]]
+    
+        if(suprimento.modelo == modelo) {
+            return suprimento
+        }
+    }
+}
+  
+const clientePorNome = nome => {
+    for(var x = 0; x < Object.keys(clientes).length; x++) {
+        var cliente = clientes[Object.keys(clientes)[x]]
+    
+        if(cliente.nomefantasia == nome || cliente.razaosocial == nome) {
+            return cliente
+        }
+    }
+}
+  
+const mostrarQuantidades = (el, suprimento, alterarQuantidade) => {
+    var container = el.parentNode.parentNode
+    var quantidade = container.querySelector('.quantidade')
+    quantidade.style.width = '100px'
+    quantidade.style.marginLeft = '8px'
+    quantidade.style.marginRight = '8px'
+    quantidade.style.opacity = '1'
+    
+    var input = quantidade.querySelector('.motivo-quantidade')
+    if(parseInt(input.value) > parseInt(suprimento.quantidade) && alterarQuantidade) {
+        input.value = suprimento.quantidade
+    }
+  
+    if(suprimento.quantidade == 0) {
+        input.value = 0
+    }
+}
+
+const salvarNovoAtendimento = () => {
+    var layout = document.body.querySelector('#novoAtendimento')
+    var cliente = clientePorNome(layout.querySelector('#cliente').value)
+    var motivos = layout.querySelectorAll('.mtmotivo-texto')
+    var erro = false
+  
+    var data = new Date()
+    var ano = data.getFullYear()
+    var mes = data.getMonth() + 1
+    if (mes < 10) { mes = "0" + mes }
+    var dia = data.getDate()
+    if (dia < 10) { dia = "0" + dia }
+  
+    atendimento = new Object()
+    atendimento.id = data.getTime() + ''
+    atendimento.datas = {
+        inicio: ano + '-' + mes + '-' + dia,
+        fim: ''
+    }
+    atendimento.ordem = 0
+  
+    if(cliente == undefined) {
+        error('Cliente inválido ou não cadastrado!')
+        erro = true
+    } else {
+        atendimento.cliente = cliente.id
+    }
+    
+    if(!erro) {
+        for(var x = 0; x < Object.keys(atendimentos).length; x++) {
+            var at = atendimentos[Object.keys(atendimentos)[x]]
+            
+            if((at.responsavel == '' || at.responsavel == layout.querySelector('#responsavel').value) 
+            && at.cliente == atendimento.cliente && !at.feito && at.id != atendimento.id) {
+    
+                error('Já existe um atendimento em aberto para esse cliente!')
+                erro = true
+                break
+            }
+        }
+    }
+    
+    if(!erro) {
+        for(var x = 0; x < motivos.length; x++) {
+            var motivo = motivos[x]
+        
+            if(motivo.value == '' && motivos.length < 2) {
+                error('Motivo muito curto ou vazio!')
+                erro = true
+                break
+            }
+        }
+    }
+  
+    if(!erro) {
+        var motivoLocal = []
+        
+        for(var x = 0; x < motivos.length; x++) {
+            var motivo = motivos[x]
+            var suprimento = suprimentoPorModelo(motivo.value)
+    
+            if(suprimento != undefined) {
+                //caso o motivo seja um toner ou suprimento
+                var quantidade = parseInt(motivo.parentNode.parentNode.querySelector('.motivo-quantidade').value)
+                if(quantidade > suprimento.quantidade) {
+                    error('A quantidade de toner não pode ser maior que a quantidade em estoque!')
+                    erro = true
+                    break
+                } else {
+                    motivoLocal.push(suprimento.modelo + ' - Quantidade: ' + quantidade)
+                    suprimento.quantidade = suprimento.quantidade - quantidade 
+                    conferirQuantidadeSuprimento(suprimento)
+                }
+            } else if(motivo.value != '') {
+                motivoLocal.push(motivo.value)
+            }
+        }
+        atendimento.motivo = motivoLocal
+    
+        atendimento.responsavel = layout.querySelector('#responsavel').value
+        if(layout.querySelector('#status').value == "Feito") {
+            atendimento.feito = true
+            atendimento.datas = {
+                inicio: atendimento.datas.inicio,
+                fim: ano + '-' + mes + '-' + dia
+            }
+        } else {
+            atendimento.feito = false
+            atendimento.datas = {
+                inicio: atendimento.datas.inicio,
+                fim: ''
+            }
+        }
+    
+        if(!erro) {
+            fecharNovoAtendimento()
+            atendimentos[atendimento.id] = atendimento
+        
+            delete atendimento.dados
+            delete atendimento.tecnico
+            mostrarLoad(document.body)
+            gravarSuprimentos()
+            gravarAtendimentos({[atendimento.id]: atendimento})
+        }
+    }
+}
+
+const gravarSuprimentos = () => {
+    messages('Gravando dados, aguarde!')
+    axios.request('https://us-central1-ioi-printers.cloudfunctions.net/gravarSuprimentos', {
+        params: {
+            usuario: usuario.usuario,
+            senha: usuario.senha,
+            suprimentos: JSON.stringify(suprimentos)
+        }
+    }).then(res => {
+        if(res.data.autenticado) {
+            if(res.data.erro) {
+                error(res.data.msg)
+            } else {
+                messages('Suprimentos atualizados!')
+            }
+        } else {
+            error('Tivemos algum problema com a autenticação, tente mais tarde!')
+        }
+    }).catch(err => {
+        error('Erro ao gravar os dados. Alterações não foram salvas!')
+    })
+}
+
+const gravarAtendimentos = atendimento => {
+    messages('Gravando dados, aguarde!')
+    axios.request('https://us-central1-ioi-printers.cloudfunctions.net/gravarAtendimentos', {
+        params: {
+            usuario: usuario.usuario,
+            senha: usuario.senha,
+            atendimentos: JSON.stringify(atendimento)
+        }
+    }).then(res => {
+        if(res.data.autenticado) {
+            if(res.data.erro) {
+                error(res.data.msg)
+            } else {
+                messages('Atendimentos atualizados!')
+                atualizar()
+            }
+        } else {
+            error('Tivemos algum problema com a autenticação, tente mais tarde!')
+        }
+    }).catch(err => {
+        error('Erro ao gravar os dados. Alterações não foram salvas. Tente mais tarde!')
+    })
 }
 
 const novoCliente = () => {
     console.log('novo cliente')
 }
+
+

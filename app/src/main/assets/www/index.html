@@ -9,6 +9,7 @@
         
         <script type="text/javascript" src="js/index.js"></script>
         <script type="text/javascript" src='js/axios.min.js'></script>
+        <script type="text/javascript" src='js/jquery.min.js'></script>
 
         <link rel="stylesheet" type="text/css" href="css/index.css" />
         <link rel="stylesheet" type="text/css" href="css/load.css" />
@@ -98,6 +99,79 @@
                     </section>
                     <section class='motivos' id='motivos'></section>
                 </div>
+            </div>
+        </template>
+        
+        <template id='tNovoAtendimento'>
+            <div id='novoAtendimento'>
+                <section id='titulo'>
+                    <div id='nome'>Novo Atendimento</div>
+                    <i class='fas fa-save salvar' id='salvar' title='Salvar dados'></i>
+                    <i class='fas fa-times-square fechar' title='Fechar' onclick='fecharNovoAtendimento()'></i>
+                </section>
+                <section>
+                    <div class='atendimentoCliente'>
+                        <div class='atgroup'>
+                            <input class='atinpt' id='cliente' type='text' autocomplete='off' required title='Cliente'>
+                            <span class='athighlight'></span>
+                            <span class='atbar'></span>
+                            <label class='atlbl'>Cliente</label>
+                            <div class='autocomplete'></div>
+                        </div>
+                        <i class='fas fa-user-edit' id='editCliente' title='Editar cliente'></i>
+                    </div>
+                </section>
+                <section id='dados'>
+                    <a id='endereco'></a>
+                    <div id='telefone'></div>
+                    <div id='chave'></div>
+                </section>
+                <section>
+                    <div class='atendimentoSelect'>
+                        <div>Responsável</div>
+                        <select id='responsavel'>
+                            <option value=''>Em aberto</option>
+                        </select>
+                    </div>
+                    <div class='atendimentoSelect'>
+                        <div>Status</div>
+                        <select id='status'>
+                            <option value='Aberto'>Aberto</option>
+                            <option value='Feito'>Feito</option>
+                        </select>
+                    </div>
+                </section>
+                <section id='mtmotivos'>
+                    <div class='mtlabel'>Motivos</div>
+                    <div class='mtmotivos-dots'></div>
+                    <div class='mtmotivo-list'></div>
+                </section>
+            </div>
+        </template>
+
+        <template id='tAtendimentoMotivo'>
+            <div class='mtmotivo'>
+                <div class='mtmotivo-dots'></div>
+                <div class='mtgroup mtmotivos'>
+                    <input class='mtinpt mtmotivo-texto' id='primeiro' type='text' autocomplete='off' required title='Motivo'>
+                    <span class='mthighlight'></span>
+                    <span class='mtbar'></span>
+                    <label class='mtlbl'>Motivo</label>
+                    <div class='mutocomplete'></div>
+                </div>
+                <div class='mtgroup mtmotivos mtquantidade'>
+                    <input class='mtinpt motivo-quantidade' type='text' maxlength='3' autocomplete='off' required title='Quantidade' min='1' value='1'>
+                    <span class='mthighlight'></span>
+                    <span class='mtbar'></span>
+                    <label class='mtlbl'>Quantidade</label>
+                </div>
+            </div>
+        </template>
+
+        <template id='tAtendimentoAdicionar'>
+            <div class='mtmotivo atadd'>
+                <div class='mtmotivo-dots mtadd'></div>
+                <i class='fas fa-plus' onclick='adicionarMotivo(this)' title='Adicionar Motivo'></i>
             </div>
         </template>
 
