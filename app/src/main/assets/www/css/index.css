@@ -90,11 +90,11 @@ html, body {
 .limpo i {
     font-size: 100px;
     margin-bottom: 20px;
-    color: var(--textos);
+    color: var(--placeholders);
 }
 
 .limpo div {
-    color: var(--textos);
+    color: var(--placeholders);
 }
 
 .updating {
