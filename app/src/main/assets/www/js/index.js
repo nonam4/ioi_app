@@ -17,6 +17,8 @@ const gravarToken = token => {
 }
 
 const autenticacao = () => {
+    document.getElementById('versao').innerHTML = versao
+
     mostrarLoad(document.body)
     //quando a página acabar de carregar o sistema checa se o usuario esta autenticado ou não
     var dados = Android.pegarUsuario()
@@ -365,11 +367,34 @@ const salvarAtendimento = atendimento => {
             fim: ano + '-' + mes + '-' + dia
         }
 
-        if(confirm('Marcar todas as impressoras como abastecidas?')) {
-            encherTintas(atendimento.dados)
-        }
-        delete atendimento.dados
-        gravarAtendimento({[atendimento.id]: atendimento})
+        $.confirm({
+            animation: 'opacity',
+            closeAnimation: 'opacity',
+            typeAnimated: false,
+            animateFromElement: false,
+            title: 'Atenção!',
+            content: 'Você abasteceu TODAS as impressoras?',
+            buttons: { 
+                confirmar: {
+                    text: 'Sim',
+                    btnClass: 'btn-blue',
+                    action: () => {
+                        encherTintas(atendimento.dados)
+                        delete atendimento.dados
+                        gravarAtendimento({[atendimento.id]: atendimento})
+                    }
+                },
+                negar: {
+                    text: 'Não',
+                    btnClass: 'btn-red',
+                    action: () => {
+                        delete atendimento.dados
+                        gravarAtendimento({[atendimento.id]: atendimento})
+                    }
+                }
+            }
+        })
+        
     } else {
         var algumFeito = false
         layout.querySelectorAll('.motivo').forEach(motivo => {
@@ -390,11 +415,32 @@ const salvarAtendimento = atendimento => {
             delete atendimento.dados
             gravarAtendimento({[atendimento.id]: atendimento})
         } else {
-            if(confirm('Deseja salvar o atendimento sem nenhum item feito?')) {
-                atendimento.responsavel = ''
-                delete atendimento.dados
-                gravarAtendimento({[atendimento.id]: atendimento})
-            }
+            $.confirm({
+                animation: 'opacity',
+                closeAnimation: 'opacity',
+                typeAnimated: false,
+                animateFromElement: false,
+                title: 'Atenção!',
+                content: 'Deseja gravar o atendimento sem nenhum item marcado?',
+                buttons: {
+                    sim: {
+                        text: 'Sim',
+                        btnClass: 'btn-blue',
+                        action: () => {
+                            atendimento.responsavel = ''
+                            delete atendimento.dados
+                            gravarAtendimento({[atendimento.id]: atendimento})
+                        }
+                    },
+                    nao: {
+                        text: 'Não',
+                        btnClass: 'btn-red',
+                        action: () => {
+                            return true
+                        }
+                    }
+                }
+            })
         }
     }
 }
@@ -442,12 +488,10 @@ const encherTintas = cliente => {
         }
     
         var usuario = JSON.parse(Android.pegarUsuario())
-        axios.request('https://us-central1-ioi-printers.cloudfunctions.net/gravarCliente', {
-            params: {
-                usuario: usuario.usuario,
-                senha: usuario.senha,
-                cliente: JSON.stringify(cliente)
-            }
+        axios.post('https://us-central1-ioi-printers.cloudfunctions.net/gravarCliente', {
+            usuario: usuario.usuario,
+            senha: usuario.senha,
+            cliente: JSON.stringify(cliente)
         }).then(res => {
             if(res.data.autenticado) {
                 if(res.data.erro) {
@@ -1027,6 +1071,7 @@ const gravarCliente = cliente => {
 
     fecharNovoAtendimento()
     messages('Gravando dados, aguarde!')
+    var usuario = JSON.parse(Android.pegarUsuario())
     axios.post('https://us-central1-ioi-printers.cloudfunctions.net/gravarCliente', {
         usuario: usuario.usuario,
         senha: usuario.senha,
@@ -1046,5 +1091,4 @@ const gravarCliente = cliente => {
         error('Erro ao gravar os dados. Alterações não foram salvas. Tente mais tarde!')
     })
 }
-
 

@@ -6,6 +6,7 @@
     --hover: rgba(0,0,0,.2);
     --transparente: rgba(255,255,255,.6);
     --erro: #c0392b;
+    --erroHover: #9b3529;
     --feedback: #323232;
     --highlight: #1a1a1a;
     --alerta: #f1c40f;
@@ -31,6 +32,15 @@ html, body {
     padding: 0px;
     width: 100%;
     overflow: hidden;
+}
+
+#versao {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    bottom: 2px;
+    font-size: 12px;
+    color: var(--dots);
 }
 
 .load ::after, .load ::before {
