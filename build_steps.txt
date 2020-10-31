@@ -1,0 +1,5 @@
+atualize a versão
+faça a build do apk no android studio
+renomeie o apk para aupdate.apk
+faça o upload do apk pra sistema/app/"versao"
+coloque o link de download no db junto da nova versão
