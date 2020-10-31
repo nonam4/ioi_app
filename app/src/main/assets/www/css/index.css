@@ -63,6 +63,30 @@ html, body {
     margin-bottom: 20px;
 }
 
+.limpo {
+    width: 100%;
+    min-height: 80vh;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+}
+
+.limpo i {
+    font-size: 100px;
+    margin-bottom: 20px;
+    color: var(--textos);
+}
+
+.limpo div {
+    color: var(--textos);
+}
+
 .updating {
     font-size: 14px;
     color: var(--textos);

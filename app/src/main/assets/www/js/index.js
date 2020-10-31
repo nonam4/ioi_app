@@ -228,11 +228,23 @@ const listagem = criarMenu => {
         document.body.appendChild(layout)
     }
 
-    var container = new DocumentFragment()
-    for(var y = 0; y < Object.keys(atendimentos).length; y++) {
-        var atendimento = atendimentos[Object.keys(atendimentos)[y]]
-        container.appendChild(criarInterfaceAtendimento(atendimento))
+    //remove qualquer outro elemento que indique a falta de atendimentos
+    //e adiciona abaixo caso precise
+    var limpo = document.body.querySelector('#limpo')
+    if(limpo != null && limpo != undefined) {
+        limpo.remove()
     }
+    
+    var container = new DocumentFragment()
+    if(Object.keys(atendimentos).length > 0) {
+        for(var y = 0; y < Object.keys(atendimentos).length; y++) {
+            var atendimento = atendimentos[Object.keys(atendimentos)[y]]
+            container.appendChild(criarInterfaceAtendimento(atendimento))
+        }
+    } else {
+        container.appendChild(document.getElementById('tLimpo').content.cloneNode(true))
+    }
+    
     document.getElementById('listagem').appendChild(container)
     esconderLoad()
 }

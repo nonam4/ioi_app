@@ -10,9 +10,11 @@
         <script type="text/javascript" src="js/index.js"></script>
         <script type="text/javascript" src='js/axios.min.js'></script>
         <script type="text/javascript" src='js/jquery.min.js'></script>
+        <script type="text/javascript" src='js/jconfirm.min.js'></script>
 
         <link rel="stylesheet" type="text/css" href="css/index.css" />
         <link rel="stylesheet" type="text/css" href="css/load.css" />
+        <link rel="stylesheet" type="text/css" href="css/jconfirm.min.css" />
         <link href='icons/css/all.min.css' rel='stylesheet'>
 
         <title>Mundo Eletrônico</title>
@@ -48,7 +50,8 @@
                     <button onclick='logout()'>Sair</button>
                 </div>
             </div>
-            <div id='fab' onmouseover='mostrarAdd()' onmouseout='esconderAdd()'>
+            <!--onmouseover='mostrarAdd()' onmouseout='esconderAdd()'-->
+            <div id='fab' onclick='novoAtendimento()'></div>
                 <i class='fas fa-plus' title='Adicionar'></i>
             </div>
             <div id='fab-buttons'>
@@ -193,6 +196,13 @@
                     </div>
                     <button type='button' onclick='conferirDados()'>ENTRAR</button>
                 </div>
+            </div>
+        </template>
+
+        <template id='tLimpo'>
+            <div id='limpo' class='limpo'>
+                <i class="far fa-clipboard-check"></i>
+                <div>Nenhum atendimento pendente!</div>
             </div>
         </template>
 

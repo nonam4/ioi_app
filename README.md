@@ -3,6 +3,7 @@
 **Desenvolvido por Luiz Carlos Ferreira**
 
 Esse é aplicativo de controle de atendimentos por técnico
+Min SDK - 8.1 Oreo
 
 
 ## License
