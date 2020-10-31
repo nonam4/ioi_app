@@ -1,4 +1,4 @@
-const versao = '0.1.2'
+const versao = '0.1.3'
 var usuario
 var atendimentos
 var suprimentos
@@ -523,11 +523,12 @@ const esconderAdd = () => {
 const novoAtendimento = () => {
     Android.novoAtendimento(true)
     var layout = document.getElementById('tNovoAtendimento').content.cloneNode(true)
-    layout.querySelector('#salvar').onclick = () => {salvarNovoAtendimento()}
+    //layout.querySelector('#salvar').onclick = () => {salvarNovoAtendimento()}
 
     var nomes = layout.querySelector('#cliente')
     autoCompleteClientes(nomes)
 
+    /*
     var option = document.createElement('option')
     option.value = usuario.nome
     option.innerHTML = usuario.nome
@@ -538,6 +539,7 @@ const novoAtendimento = () => {
     autoCompleteMotivos(motivo.querySelector('.mtmotivo-texto'))
     layout.querySelector('.mtmotivo-list').appendChild(motivo)
     layout.querySelector('.mtmotivo-list').appendChild(adicionarMotivo)
+    */
 
     document.body.appendChild(layout)
     setTimeout(() => {
@@ -686,25 +688,33 @@ const adicionarMotivo = el => {
 
 const mostrarDadosCliente = (cliente, input) => {
 
+    var edit = document.body.querySelector('#editarCliente')
+    if(edit != null && edit != undefined) {
+        edit.style.opacity = '0'
+        setTimeout(() => {
+            edit.remove()
+        }, 200)
+    }
+
     var container = input.parentNode.parentNode.parentNode.parentNode
     var dados = container.querySelector('#dados')
     var editClient = container.querySelector('#editCliente')
   
     var endereco = cliente.endereco
-    dados.querySelector('#endereco').href = 'http://maps.google.com/maps?q=' + endereco.rua + '+' + endereco.numero + '+' + endereco.cidade
+    dados.querySelector('#localizacao').href = 'http://maps.google.com/maps?q=' + endereco.rua + '+' + endereco.numero + '+' + endereco.cidade
     if(endereco.complemento == '') {
-        dados.querySelector('#endereco').innerHTML = endereco.rua + ', ' + endereco.numero + ', ' + endereco.cidade + ', ' + endereco.estado
+        dados.querySelector('#localizacao').innerHTML = endereco.rua + ', ' + endereco.numero + ', ' + endereco.cidade + ', ' + endereco.estado
     } else {
-        dados.querySelector('#endereco').innerHTML = endereco.rua + ', ' + endereco.numero + ' - ' + endereco.complemento + ' - ' + endereco.cidade + ', ' + endereco.estado
+        dados.querySelector('#localizacao').innerHTML = endereco.rua + ', ' + endereco.numero + ' - ' + endereco.complemento + ' - ' + endereco.cidade + ', ' + endereco.estado
     }
 
     var contato = cliente.contato
     if(contato.celular == '' && contato.telefone != '') {
-        dados.querySelector('#telefone').innerHTML = "<a href='tel:" + contato.telefone + "'>" + contato.telefone + "</a>"
+        dados.querySelector('#contato').innerHTML = "<a href='tel:" + contato.telefone + "'>" + contato.telefone + "</a>"
     } else if (contato.celular != '' && contato.telefone == '') {
-        dados.querySelector('#telefone').innerHTML = "<a href='tel:" + contato.celular + "'>" + contato.celular + "</a>"
+        dados.querySelector('#contato').innerHTML = "<a href='tel:" + contato.celular + "'>" + contato.celular + "</a>"
     } else {
-        dados.querySelector('#telefone').innerHTML = "<a href='tel:" + contato.telefone + "'>" + contato.telefone + 
+        dados.querySelector('#contato').innerHTML = "<a href='tel:" + contato.telefone + "'>" + contato.telefone + 
                                                         "</a> &nbsp&nbsp|&nbsp&nbsp <a href='tel:" +  contato.celular + "'>" + contato.celular + "</a>"
     }
   
@@ -715,9 +725,10 @@ const mostrarDadosCliente = (cliente, input) => {
     editClient.style.padding = '5px'
     editClient.style.opacity = '1'
     editClient.onclick = () => { 
-        fecharNovoAtendimento()
+        //fecharNovoAtendimento()
         setTimeout(() => {
             //expandirCliente(cliente)
+            editarCliente(cliente)
         }, 50) 
     }
   
@@ -920,6 +931,120 @@ const gravarAtendimentos = atendimento => {
 
 const novoCliente = () => {
     console.log('novo cliente')
+}
+
+const editarCliente = cliente => {
+    document.getElementById('novoAtendimento').appendChild(document.getElementById('tEditarCliente').content.cloneNode(true))
+    var layout = document.getElementById('editarCliente')
+
+    $('#celular').mask('(00) 00000-0000')
+    $('#telefone').mask('(00) 0000-0000')
+    $('#numero').mask('0000000')
+    $('.hora').mask('00:00')
+    
+    layout.querySelector('#telefone').value = cliente.contato.telefone
+    layout.querySelector('#celular').value = cliente.contato.celular
+    layout.querySelector('#endereco').value = toTitleCase(cliente.endereco.rua)
+    layout.querySelector('#numero').value = cliente.endereco.numero
+    layout.querySelector('#bairro').value = toTitleCase(cliente.endereco.bairro)
+    layout.querySelector('#complemento').value = cliente.endereco.complemento
+
+    var semana = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado']
+    var horarios = cliente.horarios
+    for(var x = 0; x < 7; x++) {
+        if(horarios[semana[x]].aberto) {
+            layout.querySelector('#' + semana[x]).checked = true
+            mostrarHorarios(layout.querySelector('#' + semana[x]))
+            var horario = horarios[semana[x]].horario
+            layout.querySelector('#' + semana[x] + 'De1').value = horario[0].split(' - ')[0]
+            layout.querySelector('#' + semana[x] + 'Ate1').value = horario[0].split(' - ')[1]
+            layout.querySelector('#' + semana[x] + 'De2').value = horario[1].split(' - ')[0]
+            layout.querySelector('#' + semana[x] + 'Ate2').value = horario[1].split(' - ')[1]
+        }
+    }
+
+    setTimeout(() => {
+        layout.style.opacity = '1'
+    }, 50)
+}
+
+const toTitleCase = str => {
+    return str.toLowerCase().replace(/\w\S*/g, (txt) => {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    })
+}
+
+const mostrarHorarios = element => {
+    var layout = element.parentNode.parentNode
+
+    if(element.checked) {
+        layout.querySelector('.horarios').style.display = 'block'
+        setTimeout(() => {
+            layout.querySelector('.horarios').style.height = '62px'
+            layout.querySelector('.horarios').style.opacity = '1'
+        }, 50)
+    } else {
+        layout.querySelector('.horarios').style.height = '0px'
+        layout.querySelector('.horarios').style.opacity = '0'
+        setTimeout(() => {
+            layout.querySelector('.horarios').style.display = 'none'
+        }, 200)
+    } 
+}
+
+const salvarClienteEditado = () => {
+    var id = document.querySelector('#chave').innerHTML.substring(7,20)
+    var cliente = clientes[id]
+
+    cliente.contato.telefone = document.querySelector('#telefone').value
+    cliente.contato.celular = document.querySelector('#celular').value
+
+    cliente.endereco.rua = toTitleCase(document.querySelector('#endereco').value)
+    cliente.endereco.numero = document.querySelector('#numero').value
+    cliente.endereco.bairro = toTitleCase(document.querySelector('#bairro').value)
+    cliente.endereco.complemento = document.querySelector('#complemento').value
+
+    var semana = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado']
+    var horarios = new Object()
+    for(var x = 0; x < 7; x++) {
+        horarios[semana[x]] = new Object()
+        if(document.querySelector('#' + semana[x]) != null && document.querySelector('#' + semana[x]).checked) {
+            horarios[semana[x]].aberto = true
+            horarios[semana[x]].horario = []
+            var a = document.querySelector('#' + semana[x] + 'De1').value + ' - ' + document.querySelector('#' + semana[x] + 'Ate1').value
+            var b = document.querySelector('#' + semana[x] + 'De2').value + ' - ' + document.querySelector('#' + semana[x] + 'Ate2').value
+            horarios[semana[x]].horario.push(a)
+            horarios[semana[x]].horario.push(b)
+        } else {
+            horarios[semana[x]].aberto = false
+        }
+    }
+    cliente.horarios = horarios
+    gravarCliente(cliente)
+}
+
+const gravarCliente = cliente => {
+
+    fecharNovoAtendimento()
+    messages('Gravando dados, aguarde!')
+    axios.post('https://us-central1-ioi-printers.cloudfunctions.net/gravarCliente', {
+        usuario: usuario.usuario,
+        senha: usuario.senha,
+        cliente: JSON.stringify(cliente)
+    }).then(res => {
+        if(res.data.autenticado) {
+            if(res.data.erro) {
+                error(res.data.msg)
+            } else {
+                messages('Dados atualizados!')
+                atualizar()
+            }
+        } else {
+            error('Tivemos algum problema com a autenticação, tente mais tarde!')
+        }
+    }).catch(err => {
+        error('Erro ao gravar os dados. Alterações não foram salvas. Tente mais tarde!')
+    })
 }
 
 

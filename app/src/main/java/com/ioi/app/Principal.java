@@ -52,8 +52,8 @@ public class Principal extends AppCompatActivity {
     public void verificarPermissao(String u) {
         url = u;
         if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-            String[] permissios = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
-            requestPermissions(permissios, PERMISSION_STORAGE_CODE);
+            String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            requestPermissions(permissions, PERMISSION_STORAGE_CODE);
         } else {
             downloadUpdate();
         }

@@ -10,7 +10,9 @@
         <script type="text/javascript" src="js/index.js"></script>
         <script type="text/javascript" src='js/axios.min.js'></script>
         <script type="text/javascript" src='js/jquery.min.js'></script>
+		<script type="text/javascript" src='js/jquery.mask.min.js'></script>
         <script type="text/javascript" src='js/jconfirm.min.js'></script>
+        <script type="text/javascript" src="js/masks.js"></script>
 
         <link rel="stylesheet" type="text/css" href="css/index.css" />
         <link rel="stylesheet" type="text/css" href="css/load.css" />
@@ -50,14 +52,19 @@
                     <button onclick='logout()'>Sair</button>
                 </div>
             </div>
-            <!--onmouseover='mostrarAdd()' onmouseout='esconderAdd()'-->
-            <div id='fab' onclick='novoAtendimento()'></div>
+
+            <div id='fab' onclick='novoAtendimento()'>
+                <i class='fas fa-users' title='Clientes'></i>
+            </div>
+            <!--
+            <div id='fab' onmouseover='mostrarAdd()' onmouseout='esconderAdd()'>
                 <i class='fas fa-plus' title='Adicionar'></i>
             </div>
             <div id='fab-buttons'>
                 <button onclick='novoCliente()'>Novo Cliente</button>
                 <button onclick='novoAtendimento()'>Novo Atendimento</button>
             </div>
+            -->
             <div id='listagem'></div>
         </template>
         
@@ -108,8 +115,8 @@
         <template id='tNovoAtendimento'>
             <div id='novoAtendimento'>
                 <section id='titulo'>
-                    <div id='nome'>Novo Atendimento</div>
-                    <i class='fas fa-save salvar' id='salvar' title='Salvar dados'></i>
+                    <div id='nome'>Clientes</div>
+                    <i class='fas fa-save salvar' id='salvar' title='Salvar dados' onclick='salvarClienteEditado()'></i>
                     <i class='fas fa-times-square fechar' title='Fechar' onclick='fecharNovoAtendimento()'></i>
                 </section>
                 <section>
@@ -125,10 +132,12 @@
                     </div>
                 </section>
                 <section id='dados'>
-                    <a id='endereco'></a>
-                    <div id='telefone'></div>
+                    <a id='localizacao'></a>
+                    <div id='contato'></div>
                     <div id='chave'></div>
                 </section>
+                
+                <!--
                 <section>
                     <div class='atendimentoSelect'>
                         <div>Responsável</div>
@@ -149,6 +158,189 @@
                     <div class='mtmotivos-dots'></div>
                     <div class='mtmotivo-list'></div>
                 </section>
+                -->
+            </div>
+        </template>
+
+        <template id='tEditarCliente'>
+            <div id='editarCliente'>
+                <section>
+                    <div class='atendimentoCliente'>
+                        <div class='atgroup'>
+                            <input class='atinpt' id='telefone' type='text' autocomplete='off' required title='Telefone'>
+                            <span class='athighlight'></span>
+                            <span class='atbar'></span>
+                            <label class='atlbl'>Telefone</label>
+                        </div>
+                    </div>
+                    <div class='atendimentoCliente'>
+                        <div class='atgroup'>
+                            <input class='atinpt' id='celular' type='text' autocomplete='off' required title='Celular'>
+                            <span class='athighlight'></span>
+                            <span class='atbar'></span>
+                            <label class='atlbl'>Celular</label>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class='atendimentoCliente'>
+                        <div class='atgroup'>
+                            <input class='atinpt' id='endereco' type='text' autocomplete='off' required title='Endereço'>
+                            <span class='athighlight'></span>
+                            <span class='atbar'></span>
+                            <label class='atlbl'>Endereço</label>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class='atendimentoCliente endnumero'>
+                        <div class='atgroup'>
+                            <input class='atinpt' id='numero' type='text' autocomplete='off' required title='Numero'>
+                            <span class='athighlight'></span>
+                            <span class='atbar'></span>
+                            <label class='atlbl'>Numero</label>
+                        </div>
+                    </div>
+                    <div class='atendimentoCliente'>
+                        <div class='atgroup'>
+                            <input class='atinpt' id='bairro' type='text' autocomplete='off' required title='Bairro'>
+                            <span class='athighlight'></span>
+                            <span class='atbar'></span>
+                            <label class='atlbl'>Bairro</label>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class='atendimentoCliente'>
+                        <div class='atgroup'>
+                            <input class='atinpt' id='complemento' type='text' autocomplete='off' required title='Complemento'>
+                            <span class='athighlight'></span>
+                            <span class='atbar'></span>
+                            <label class='atlbl'>Complemento</label>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class='atendimentoCliente'>Horários</div>
+                </section>
+                <!--dias da semana-->
+                <section>
+                    <div class='atendimentoCliente horaatendimento'>
+                        <div class='motivo'>
+                            <input type='checkbox' id='segunda' name='segunda' onclick='mostrarHorarios(this)'>
+                            <label for='segunda'>Segunda</label>
+                        </div>
+                        <div class='horarios'>
+                            <div class='horario'>
+                                <input class='simpleInput hora' type='text' id='segundaDe1' value="08:00">
+                                <span>-</span>
+                                <input class='simpleInput hora' type='text' id='segundaAte1' value="12:00">
+                            </div>
+                            <div class='horario'>
+                                <input class='simpleInput hora' type='text' id='segundaDe2' value="13:30">
+                                <span>-</span>
+                                <input class='simpleInput hora' type='text' id='segundaAte2' value="18:00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class='atendimentoCliente horaatendimento'>
+                        <div class='motivo'>
+                            <input type='checkbox' id='terca' name='terca' onclick='mostrarHorarios(this)'>
+                            <label for='terca'>Terça</label>
+                        </div>
+                        <div class='horarios'>
+                            <div class='horario'>
+                                <input class='simpleInput hora' type='text' id='tercaDe1' value="08:00">
+                                <span>-</span>
+                                <input class='simpleInput hora' type='text' id='tercaAte1' value="12:00">
+                            </div>
+                            <div class='horario'>
+                                <input class='simpleInput hora' type='text' id='tercaDe2' value="13:30">
+                                <span>-</span>
+                                <input class='simpleInput hora' type='text' id='tercaAte2' value="18:00">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class='atendimentoCliente horaatendimento'>
+                        <div class='motivo'>
+                            <input type='checkbox' id='quarta' name='quarta' onclick='mostrarHorarios(this)'>
+                            <label for='quarta'>Quarta</label>
+                        </div>
+                        <div class='horarios'>
+                            <div class='horario'>
+                                <input class='simpleInput hora' type='text' id='quartaDe1' value="08:00">
+                                <span>-</span>
+                                <input class='simpleInput hora' type='text' id='quartaAte1' value="12:00">
+                            </div>
+                            <div class='horario'>
+                                <input class='simpleInput hora' type='text' id='quartaDe2' value="13:30">
+                                <span>-</span>
+                                <input class='simpleInput hora' type='text' id='quartaAte2' value="18:00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class='atendimentoCliente horaatendimento'>
+                        <div class='motivo'>
+                            <input type='checkbox' id='quinta' name='quinta' onclick='mostrarHorarios(this)'>
+                            <label for='quinta'>Quinta</label>
+                        </div>
+                        <div class='horarios'>
+                            <div class='horario'>
+                                <input class='simpleInput hora' type='text' id='quintaDe1' value="08:00">
+                                <span>-</span>
+                                <input class='simpleInput hora' type='text' id='quintaAte1' value="12:00">
+                            </div>
+                            <div class='horario'>
+                                <input class='simpleInput hora' type='text' id='quintaDe2' value="13:30">
+                                <span>-</span>
+                                <input class='simpleInput hora' type='text' id='quintaAte2' value="18:00">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class='atendimentoCliente horaatendimento'>
+                        <div class='motivo'>
+                            <input type='checkbox' id='sexta' name='sexta' onclick='mostrarHorarios(this)'>
+                            <label for='sexta'>Sexta</label>
+                        </div>
+                        <div class='horarios'>
+                            <div class='horario'>
+                                <input class='simpleInput hora' type='text' id='sextaDe1' value="08:00">
+                                <span>-</span>
+                                <input class='simpleInput hora' type='text' id='sextaAte1' value="12:00">
+                            </div>
+                            <div class='horario'>
+                                <input class='simpleInput hora' type='text' id='sextaDe2' value="13:30">
+                                <span>-</span>
+                                <input class='simpleInput hora' type='text' id='sextaAte2' value="18:00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class='atendimentoCliente horaatendimento'>
+                        <div class='motivo'>
+                            <input type='checkbox' id='sabado' name='sabado' onclick='mostrarHorarios(this)'>
+                            <label for='sabado'>Sábado</label>
+                        </div>
+                        <div class='horarios'>
+                            <div class='horario'>
+                                <input class='simpleInput hora' type='text' id='sabadoDe1' value="08:00">
+                                <span>-</span>
+                                <input class='simpleInput hora' type='text' id='sabadoAte1' value="12:00">
+                            </div>
+                            <div class='horario'>
+                                <input class='simpleInput hora' type='text' id='sabadoDe2' value="13:30">
+                                <span>-</span>
+                                <input class='simpleInput hora' type='text' id='sabadoAte2' value="18:00">
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </template>
 
@@ -160,7 +352,7 @@
                     <span class='mthighlight'></span>
                     <span class='mtbar'></span>
                     <label class='mtlbl'>Motivo</label>
-                    <div class='mutocomplete'></div>
+                    <div class='autocomplete'></div>
                 </div>
                 <div class='mtgroup mtmotivos mtquantidade'>
                     <input class='mtinpt motivo-quantidade' type='text' maxlength='3' autocomplete='off' required title='Quantidade' min='1' value='1'>

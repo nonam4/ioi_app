@@ -628,11 +628,13 @@ html, body {
     display: flex;
 }
   
+/*
 #novoAtendimento section:nth-of-type(4) {
     padding-top: 8px;
     width: 100%;
     display: flex;
 }
+*/
   
 .atendimentoCliente {
     width: 100%;
@@ -1054,3 +1056,65 @@ html, body {
 .autocomplete::-webkit-scrollbar-thumb {
     background: #aaa;
 }
+
+#editarCliente {
+    overflow: hidden;
+    overflow-y: auto;
+    opacity: 0;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+}
+
+.endnumero {
+    max-width: 75px;
+}
+
+.simpleInput {
+    font-size: 14px;
+    color: var(--textos);
+    width: 100%;
+    font-weight: 400;
+    font-family: "Trebuchet MS";
+    text-align: center;
+    margin: -8px 0px 0px 0px;
+    border: 0px;
+    border-bottom: solid 1px var(--bordas);
+    padding-bottom: 4px;
+    outline: none;
+    cursor: text !important;
+  }
+  
+  .simpleInput::placeholder {
+    color: var(--titulos);
+  }
+
+.horarios {
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+    height: 0px;
+    opacity: 0;
+    display: none;
+  }
+  
+  .horario {
+    display: flex;
+    height: fit-content;
+    padding-top: 8px;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+  }
+  
+  .horario span {
+    padding: 0px 4px 0px 4px;
+  }
+  
+  .hora {
+    max-width: 100px;
+  }
+
+  .horaatendimento {
+      display: block !important;
+  }
