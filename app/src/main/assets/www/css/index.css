@@ -548,6 +548,11 @@ html, body {
 
 .motivo label {
     color: var(--textos);
+    min-height: 28px;
+    display: block;
+    padding-left: 40px;
+    cursor: pointer;
+    line-height: 28px;
 }
 
 .motivo label:before {
@@ -581,14 +586,6 @@ html, body {
 .motivo input[type="checkbox"]:checked ~ label::after {
     -webkit-transform: rotate(-45deg) scale(1);
     transform: rotate(-45deg) scale(1);
-}
-
-.motivo label {
-    min-height: 28px;
-    display: block;
-    padding-left: 40px;
-    cursor: pointer;
-    line-height: 28px;
 }
 
 .motivo input[type="checkbox"]:focus + label::before {
